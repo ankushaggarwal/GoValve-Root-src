@@ -20,15 +20,15 @@ echo "Close frame number: $NCLOSE"
 echo "End frame number: $NDONE"
 echo "Tag: $TAG"
 
-PATH_GREEDY=/home/apouch/src/itksnap-4.0.0-alpha-20211103-Linux-gcc64/bin
-PATH_VTKLEVELSET=/home/apouch/build/cmrep-dev-czi-54
+PATH_GREEDY=${PATH_SNAP}
+PATH_VTKLEVELSET=/home/ankush/codes/cmrep-1.0.0-Linux-gcc64/bin
 PATH_MATLAB=/usr/local/bin
-PATH_SCRIPTS=/home/apouch/GoValve-Root-src
+PATH_SCRIPTS=/home/ankush/codes/GoValve-Root-src
 
 cd $PATH_SCRIPTS
 
 # get frame time of 4D image
-FT=$(python get_frametime.py ${FNIMG})
+FT=$(python3 get_frametime.py ${FNIMG})
 echo "Frame time is ${FT} ms"
 
 # extract 3D segmentation
@@ -41,24 +41,24 @@ $PATH_VTKLEVELSET/vtklevelset -pl $FNSEG $FNVTK 1
 FNMEDOUT=$WDIR/segref.med.vtk
 FNBNDOUT=$WDIR/segref.bnd.vtk
 #$PATH_MATLAB/matlab -batch "medial_mesh('$FNVTK','$FNMEDOUT','$FNBNDOUT')"
-python medial_mesh.py $FNVTK $FNBNDOUT 
-python medial_recon_from_bnd.py $FNBNDOUT $FNMEDOUT 
+python3 medial_mesh.py $FNVTK $FNBNDOUT 
+python3 medial_recon_from_bnd.py $FNBNDOUT $FNMEDOUT 
 
 # propagate reference mesh to other frames in the series
-python run_propagation_root.py $WDIR $FNIMG $FNSEG $NREF $NSTART $NDONE $TAG $PATH_GREEDY $PATH_VTKLEVELSET
+python3 run_propagation_root.py $WDIR $FNIMG $FNSEG $NREF $NSTART $NDONE $TAG $PATH_GREEDY $PATH_VTKLEVELSET
 
 # construct medial surfaces from boundary meshes
 MESHDIR=$WDIR/output/mesh
 #$PATH_MATLAB/matlab -batch "medial_recon_from_bnd('$MESHDIR','$TAG','$FNBNDOUT','$FNMEDOUT','$NREF','$NSTART','$NDONE')"
-python call_medial_recon.py $MESHDIR $TAG $FNBNDOUT $FNMEDOUT $NREF $NSTART $NDONE
+python3 call_medial_recon.py $MESHDIR $TAG $FNBNDOUT $FNMEDOUT $NREF $NSTART $NDONE
 cp $FNMEDOUT $MESHDIR/seg_${TAG}_med_recon_${NREF}.vtk
 
 # compute root strain
-python compute_strain.py ${WDIR}/output/mesh $FT $NOPEN $NCLOSE $NREF
+python3 compute_strain.py ${WDIR}/output/mesh $FT $NOPEN $NCLOSE $NREF
 
 # create 4D root segmentation
 echo "${WDIR}/output"
 echo "Image filename is: $FNIMG"
 echo "Segmentation filename is: $FNSEG"
 echo "Reference frame is: $NREF"
-python stack_img3D.py ${WDIR}/output $FNIMG $FNSEG $NREF 
+python3 stack_img3D.py ${WDIR}/output $FNIMG $FNSEG $NREF 
