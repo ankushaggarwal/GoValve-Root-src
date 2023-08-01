@@ -40,14 +40,17 @@ $PATH_VTKLEVELSET/vtklevelset -pl $FNSEG $FNVTK 1
 # create medial and boundary meshes of reference segmentation
 FNMEDOUT=$WDIR/segref.med.vtk
 FNBNDOUT=$WDIR/segref.bnd.vtk
-$PATH_MATLAB/matlab -batch "medial_mesh('$FNVTK','$FNMEDOUT','$FNBNDOUT')"
+#$PATH_MATLAB/matlab -batch "medial_mesh('$FNVTK','$FNMEDOUT','$FNBNDOUT')"
+python medial_mesh.py $FNVTK $FNBNDOUT 
+python medial_recon_from_bnd.py $FNBNDOUT $FNMEDOUT 
 
 # propagate reference mesh to other frames in the series
 python run_propagation_root.py $WDIR $FNIMG $FNSEG $NREF $NSTART $NDONE $TAG $PATH_GREEDY $PATH_VTKLEVELSET
 
 # construct medial surfaces from boundary meshes
 MESHDIR=$WDIR/output/mesh
-$PATH_MATLAB/matlab -batch "medial_recon_from_bnd('$MESHDIR','$TAG','$FNBNDOUT','$FNMEDOUT','$NREF','$NSTART','$NDONE')"
+#$PATH_MATLAB/matlab -batch "medial_recon_from_bnd('$MESHDIR','$TAG','$FNBNDOUT','$FNMEDOUT','$NREF','$NSTART','$NDONE')"
+python call_medial_recon.py $MESHDIR $TAG $FNBNDOUT $FNMEDOUT $NREF $NSTART $NDONE
 cp $FNMEDOUT $MESHDIR/seg_${TAG}_med_recon_${NREF}.vtk
 
 # compute root strain
