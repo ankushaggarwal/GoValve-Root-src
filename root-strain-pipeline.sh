@@ -20,6 +20,7 @@ echo "Close frame number: $NCLOSE"
 echo "End frame number: $NDONE"
 echo "Tag: $TAG"
 
+PATH_SNAP=/home/ankush/codes/itksnap-4.0.1-20230320-Linux-gcc64/bin
 PATH_GREEDY=${PATH_SNAP}
 PATH_VTKLEVELSET=/home/ankush/codes/cmrep-1.0.0-Linux-gcc64/bin
 PATH_MATLAB=/usr/local/bin
