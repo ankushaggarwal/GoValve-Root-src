@@ -15,11 +15,14 @@ def write_vtk(polydata, filename):
     writer = vtk.vtkPolyDataWriter()
     writer.SetFileName(filename)
     #triangulate
-    tri = vtk.vtkTriangleFilter()
-    tri.SetInputData(polydata)
-    tri.Update()
-    #writer.SetInputData(polydata)
-    writer.SetInputData(tri.GetOutput())
+    #tri = vtk.vtkTriangleFilter()
+    #tri = vtk.vtkQuadToTriangleFilter()
+    #tri.SetInputData(polydata)
+    #tri.Update()
+    writer.SetInputData(polydata)
+    #print("Number of cells")
+    #print(polydata.GetNumberOfCells(), tri.GetOutput().GetNumberOfCells())
+    #writer.SetInputData(tri.GetOutput())
     writer.Update()
 
 def read_vtk_points(polydata):
@@ -37,11 +40,23 @@ def write_vtk_polydata(points, point_data, connectivity, cell_data={}, filename 
 
     cells = vtk.vtkCellArray()
     for polygon_connectivity in connectivity:
-        cell = vtk.vtkPolygon()
-        cell.GetPointIds().SetNumberOfIds(len(polygon_connectivity))
-        for i, point_index in enumerate(polygon_connectivity):
-            cell.GetPointIds().SetId(i, point_index)
-        cells.InsertNextCell(cell)
+        #cell = vtk.vtkPolygon()
+        #cell.GetPointIds().SetNumberOfIds(len(polygon_connectivity))
+        #for i, point_index in enumerate(polygon_connectivity):
+        #    cell.GetPointIds().SetId(i, point_index)
+        #cells.InsertNextCell(cell)
+        triangle1 = vtk.vtkTriangle()
+        triangle1.GetPointIds().SetId(0, polygon_connectivity[0])
+        triangle1.GetPointIds().SetId(1, polygon_connectivity[1])
+        triangle1.GetPointIds().SetId(2, polygon_connectivity[2])
+
+        triangle2 = vtk.vtkTriangle()
+        triangle2.GetPointIds().SetId(0, polygon_connectivity[0])
+        triangle2.GetPointIds().SetId(1, polygon_connectivity[2])
+        triangle2.GetPointIds().SetId(2, polygon_connectivity[3])
+
+        cells.InsertNextCell(triangle1)
+        cells.InsertNextCell(triangle2)
     polydata = vtk.vtkPolyData()
     polydata.SetPoints(vtk_pts)
     polydata.SetPolys(cells)
@@ -94,7 +109,7 @@ def convert(inp_file, outfile):
             for k in range(len(mapping[0,0])):
                 connectivity.append([mapping[i,j,k-1], mapping[i+1,j,k-1],mapping[i+1,j,k],mapping[i,j,k]])
 
-    write_vtk_polydata(med_points, med_point_data, connectivity, filename=out_file)
+    write_vtk_polydata(med_points, med_point_data, connectivity, filename=outfile)
 
 if __name__ == '__main__':
     inp_file = sys.argv[1]
